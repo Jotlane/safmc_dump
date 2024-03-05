@@ -1,23 +1,13 @@
-Stuff to take note of
-install libgtk2.0-dev and pkg-config
-Install opencv all modules, refer to website
-cmake -DWITH_GTK=ON ../opencv-4.x
+cd ~/safmc_dump
+git clone https://github.com/Jotlane/safmc_dump.git
+source /opt/ros/humble/setup.bash
+colcon build
+mv aruco_detection.dockerfile DOCKERFILE
+sudo docker build -t aruco_detection .
+xhosts +
 
-(not needed for docker I think) add to the cmake file <<<set(OpenCV_DIR /usr/local/lib/cmake/opencv)>>>, add this above the find dependencies portion
+sudo docker run --name aruco_detection --rm -it --network=host --ipc=host --device=/dev/video0 -e DISPLAY=unix$DISPLAY -v /home/binux/github/safmc_dump:/root/aruco_detection -v /tmp/.X11-unix:/tmp/.X11-unix aruco_detection:latest
 
-(not needed for docker I think) maybe sudo ldconfig
-(not needed for docker I think) uninstall the python pip opencv thing with pip pip uninstall opencv-contrib-python then pip cache purge
-(not needed for docker I think) uninstall opencv with sudo apt remove libopencv*
-
-rmb to modify the cmake file for each cpp file you add. refer to existing cmake file
-
-
-ros2 run my_opencv_demo detect_markers -d=16 -c=caliboutput.yaml -l=0.07
-
-
-
-
-todo: make it easier to setup the docker
-
-sudo docker run --device=/dev/video0 -it 1a8f97f015e6 bash
-
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+ros2 run aruco_detection detect_markers -d=16 -c=caliboutput.yaml -l=0.07

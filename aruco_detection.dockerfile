@@ -32,4 +32,10 @@ RUN sudo make -j2 install
 
 RUN sudo ldconfig
 
+RUN apt install ros-humble-cv-bridge -y
+
+RUN apt install ros-humble-vision-opencv -y
+
+RUN apt install ros-humble-image-common -y
+
 WORKDIR /root/aruco_detection

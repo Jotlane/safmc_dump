@@ -23,7 +23,7 @@ RUN mkdir -p /build
 WORKDIR /build
 
 # Configure
-RUN cmake -DWITH_GTK=ON -DOPENCV_EXTRA_MODULES_PATH=/home/build_opencv/opencv_contrib-4.x/modules /home/build_opencv/opencv-4.x
+RUN cmake -DWITH_GTK=ON -DWITH_GSTREAMER=ON -DOPENCV_EXTRA_MODULES_PATH=/home/build_opencv/opencv_contrib-4.x/modules /home/build_opencv/opencv-4.x
 
 # Build
 RUN cmake --build . -j3
@@ -32,10 +32,12 @@ RUN sudo make -j2 install
 
 RUN sudo ldconfig
 
-RUN apt install ros-humble-cv-bridge -y
+RUN apt install -y ros-humble-cv-bridge ros-humble-vision-opencv ros-humble-image-common
 
-RUN apt install ros-humble-vision-opencv -y
+RUN apt install vim -y
 
-RUN apt install ros-humble-image-common -y
+RUN apt install v4l-utils -y
+
+RUN apt install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-bad1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio
 
 WORKDIR /root/aruco_detection

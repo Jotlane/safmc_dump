@@ -17,7 +17,21 @@ class ImageConverter : public rclcpp::Node
   private:
     void topic_callback(const sensor_msgs::msg::Image & msg) const
     {
-      std::cout << "EEEEEEE" << std::endl;
+        try
+            {
+                cv_bridge::CvImagePtr cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
+                // Now you have the image in cv::Mat format
+                cv::Mat image = cv_ptr->image;
+
+                // Use the image as needed
+                cv::imshow("Received Image", image);
+                cv::waitKey(1);
+            }
+        catch (cv_bridge::Exception& e)
+            {
+                RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
+                return;
+            }
     }
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_;
 };

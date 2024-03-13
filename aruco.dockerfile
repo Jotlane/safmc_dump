@@ -54,11 +54,35 @@ WORKDIR /opt/LCCV/build
 RUN cmake ..
 RUN sudo make install
 
+WORKDIR /home
+RUN mkdir build_opencv
+WORKDIR /home/build_opencv
+RUN wget -O opencv.zip https://github.com/opencv/opencv/archive/4.x.zip && \
+    wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/4.x.zip && \
+    unzip opencv.zip && \
+    unzip opencv_contrib.zip
+
+# Create build directory and switch into it
+RUN mkdir -p /build
+WORKDIR /build
+
+# Configure
+RUN cmake -DWITH_GTK=ON -DWITH_GSTREAMER=ON -DOPENCV_EXTRA_MODULES_PATH=/home/build_opencv/opencv_contrib-4.x/modules /home/build_opencv/opencv-4.x
+
+# Build
+RUN cmake --build . -j3
+
+RUN sudo make -j2 install
+
+RUN sudo ldconfig
+
 RUN apt-get install -y \
     ros-humble-libcamera \
     ros-humble-cv-bridge \
     ros-humble-vision-opencv \
     ros-humble-image-common
+
+WORKDIR /root
 
 # Add entrypoint to configure ros package and node with environmental variables
 COPY aruco_entrypoint.sh /entrypoint.sh

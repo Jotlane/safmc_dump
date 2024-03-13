@@ -2,6 +2,9 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/image.hpp"
+#include "cv_bridge/cv_bridge.h"
+#include "opencv2/highgui/highgui.hpp"
+
 using std::placeholders::_1;
 
 class ImageConverter : public rclcpp::Node

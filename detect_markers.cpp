@@ -33,6 +33,7 @@ class ImageConverter : public rclcpp::Node
                 bool estimatePose = true;
                 bool showRejected = false;
                 float markerLength = 0.07;
+                aruco::DetectorParameters detectorParams;
                 aruco::Dictionary dictionary = aruco::getPredefinedDictionary(0);
                 int dictionaryId = 16;
                 dictionary = aruco::getPredefinedDictionary(aruco::PredefinedDictionaryType(dictionaryId));
@@ -62,7 +63,7 @@ class ImageConverter : public rclcpp::Node
                     // Calculate pose for each marker
                     for (size_t  i = 0; i < nMarkers; i++) {
                         solvePnP(objPoints, corners.at(i), camMatrix, distCoeffs, rvecs.at(i), tvecs.at(i));
-                        node->publishMarkersPose(rvecs, tvecs);
+                        //node->publishMarkersPose(rvecs, tvecs);
                     }
                 }
 
@@ -85,8 +86,6 @@ class ImageConverter : public rclcpp::Node
                     aruco::drawDetectedMarkers(imageCopy, rejected, noArray(), Scalar(100, 0, 255));
 
                 imshow("out", imageCopy);
-                char key = (char)waitKey(waitTime);
-                if(key == 27) break;
 
 
 

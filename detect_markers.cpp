@@ -7,7 +7,8 @@ using std::placeholders::_1;
 #include <opencv2/aruco.hpp>
 #include <iostream>
 #include "aruco_samples_utility.hpp"
-
+#include "cv_bridge/cv_bridge.h"
+#include "opencv2/highgui/highgui.hpp"
 
 #include "geometry_msgs/msg/twist.hpp"
 #include "geometry_msgs/msg/vector3.hpp"

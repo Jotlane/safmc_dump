@@ -86,6 +86,7 @@ class ImageConverter : public rclcpp::Node
                     aruco::drawDetectedMarkers(imageCopy, rejected, noArray(), Scalar(100, 0, 255));
 
                 imshow("out", imageCopy);
+                waitKey(1);
 
 
 

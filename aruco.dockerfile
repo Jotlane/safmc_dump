@@ -80,7 +80,10 @@ RUN apt-get install -y \
     ros-humble-libcamera \
     ros-humble-cv-bridge \
     ros-humble-vision-opencv \
-    ros-humble-image-common
+    ros-humble-image-common \
+    python3-numpy \
+    libboost-python-dev \
+    python3-opencv
 
 WORKDIR /root
 

@@ -30,6 +30,20 @@ class ImageConverter : public rclcpp::Node
     {
         try
             {
+                bool estimatePose = true;
+                bool showRejected = false;
+                float markerLength = 0.07;
+                aruco::Dictionary dictionary = aruco::getPredefinedDictionary(0);
+                int dictionaryId = 16;
+                dictionary = aruco::getPredefinedDictionary(aruco::PredefinedDictionaryType(dictionaryId));
+                Mat camMatrix, distCoeffs;
+                bool readOk = readCameraParameters("caliboutput.yaml", camMatrix, distCoeffs);
+                aruco::ArucoDetector detector(dictionary, detectorParams);
+                cv::Mat objPoints(4, 1, CV_32FC3);
+                objPoints.ptr<Vec3f>(0)[0] = Vec3f(-markerLength/2.f, markerLength/2.f, 0);
+                objPoints.ptr<Vec3f>(0)[1] = Vec3f(markerLength/2.f, markerLength/2.f, 0);
+                objPoints.ptr<Vec3f>(0)[2] = Vec3f(markerLength/2.f, -markerLength/2.f, 0);
+                objPoints.ptr<Vec3f>(0)[3] = Vec3f(-markerLength/2.f, -markerLength/2.f, 0);
                 cv_bridge::CvImagePtr cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
                 // Now you have the image in cv::Mat format
                 Mat image = cv_ptr->image;
@@ -89,20 +103,6 @@ class ImageConverter : public rclcpp::Node
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
-  bool estimatePose = true;
-  bool showRejected = false;
-  float markerLength = 0.07;
-  aruco::Dictionary dictionary = aruco::getPredefinedDictionary(0);
-  int dictionaryId = 16;
-  dictionary = aruco::getPredefinedDictionary(aruco::PredefinedDictionaryType(dictionaryId));
-  Mat camMatrix, distCoeffs;
-  bool readOk = readCameraParameters("caliboutput.yaml", camMatrix, distCoeffs);
-  aruco::ArucoDetector detector(dictionary, detectorParams);
-  cv::Mat objPoints(4, 1, CV_32FC3);
-  objPoints.ptr<Vec3f>(0)[0] = Vec3f(-markerLength/2.f, markerLength/2.f, 0);
-  objPoints.ptr<Vec3f>(0)[1] = Vec3f(markerLength/2.f, markerLength/2.f, 0);
-  objPoints.ptr<Vec3f>(0)[2] = Vec3f(markerLength/2.f, -markerLength/2.f, 0);
-  objPoints.ptr<Vec3f>(0)[3] = Vec3f(-markerLength/2.f, -markerLength/2.f, 0);
   rclcpp::spin(make_shared<ImageConverter>());
   rclcpp::shutdown();
   return 0;

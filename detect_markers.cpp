@@ -66,7 +66,6 @@ class ImageConverter : public rclcpp::Node
                         if (ids[i] == 1)
                         {
                             solvePnP(objPoints, corners.at(i), camMatrix, distCoeffs, rvecs.at(i), tvecs.at(i));
-                            node->publishMarkersPose(rvecs, tvecs, i);
                         }
                     }
                 }

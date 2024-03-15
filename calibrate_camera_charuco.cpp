@@ -38,6 +38,7 @@ class ImageConverter : public rclcpp::Node
 
     vector<Mat> allImages;
     Size imageSize;
+                int i =0;
 
   private:
     int topic_callback(const sensor_msgs::msg::Image & msg)
@@ -49,7 +50,6 @@ class ImageConverter : public rclcpp::Node
                 cv::Mat image = cv_ptr->image;
 
 
-                int i =0;
                 int squaresX = 7;
                 int squaresY = 5;
                 float squareLength = 0.035;
@@ -115,21 +115,25 @@ class ImageConverter : public rclcpp::Node
                     allImagePoints.push_back(currentImagePoints);
                     allObjectPoints.push_back(currentObjectPoints);
                     allImages.push_back(image);
+                        i = i + 1;
+			cout << i<<endl;
 
                     imageSize = image.size();
                     if (i>40){
-                        i = i + 1;
+			    cout << "a" << endl;
                         if(allCharucoCorners.size() < 4) {
                             cerr << "Not enough corners for calibration" << endl;
                             return 0;
                         }
 
                         Mat cameraMatrix, distCoeffs;
+			    cout << "b" << endl;
 
                         if(calibrationFlags & CALIB_FIX_ASPECT_RATIO) {
                             cameraMatrix = Mat::eye(3, 3, CV_64F);
                             cameraMatrix.at<double>(0, 0) = aspectRatio;
                         }
+			    cout << "c" << endl;
 
                         // Calibrate camera using ChArUco
                         double repError = calibrateCamera(
@@ -137,11 +141,13 @@ class ImageConverter : public rclcpp::Node
                             cameraMatrix, distCoeffs, noArray(), noArray(), noArray(),
                             noArray(), noArray(), calibrationFlags
                         );
+			    cout << "d" << endl;
 
                         bool saveOk =  saveCameraParams(
                             outputFile, imageSize, aspectRatio, calibrationFlags,
                             cameraMatrix, distCoeffs, repError
                         );
+			    cout << "e" << endl;
 
                         if(!saveOk) {
                             cerr << "Cannot save output file" << endl;
@@ -173,3 +179,4 @@ int main(int argc, char * argv[])
   rclcpp::shutdown();
   return 0;
 }
+

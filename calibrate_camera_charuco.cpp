@@ -30,7 +30,7 @@ class ImageConverter : public rclcpp::Node
     }
 
   private:
-    void topic_callback(const sensor_msgs::msg::Image & msg) const
+    topic_callback(const sensor_msgs::msg::Image & msg) const
     {
         try
             {
@@ -103,7 +103,7 @@ class ImageConverter : public rclcpp::Node
 
                     if(currentImagePoints.empty() || currentObjectPoints.empty()) {
                         cout << "Point matching failed, try again." << endl;
-                        continue;
+                        return 0;
                     }
 
                     cout << "Frame captured" << endl;

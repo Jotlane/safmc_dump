@@ -9,6 +9,7 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/objdetect.hpp>
 #include "aruco_samples_utility.hpp"
+#include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/image.hpp"
 using std::placeholders::_1;
 

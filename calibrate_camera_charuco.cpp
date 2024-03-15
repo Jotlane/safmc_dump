@@ -46,10 +46,10 @@ class ImageConverter : public rclcpp::Node
     aruco::DetectorParameters detectorParams = aruco::DetectorParameters();
     aruco::Dictionary dictionary = aruco::getPredefinedDictionary(16);
     // Create charuco board object
-
+    aruco::CharucoBoard board(Size(squaresX, squaresY), squareLength, markerLength, dictionary);
     aruco::CharucoParameters charucoParams;
 
-
+    aruco::CharucoDetector detector(board, charucoParams, detectorParams);
 
     // Collect data from each frame
     vector<Mat> allCharucoCorners;

@@ -1,6 +1,3 @@
-// This file is part of OpenCV project.
-// It is subject to the license terms in the LICENSE file found in the top-level directory
-// of this distribution and at http://opencv.org/license.html
 #include <memory>
 #include <iostream>
 #include <vector>
@@ -40,7 +37,8 @@ class ImageConverter : public rclcpp::Node
       subscription_ = this->create_subscription<sensor_msgs::msg::Image>(
       "/camera/cam0/image_raw", 10, std::bind(&ImageConverter::topic_callback, this, _1));
     }
-  public:
+
+  private:
     int squaresX;
     int squaresY;
     float squareLength;
@@ -54,17 +52,13 @@ class ImageConverter : public rclcpp::Node
     aruco::CharucoParameters charucoParams;
     aruco::CharucoDetector detector;
 
-    // Collect data from each frame
-    vector<Mat> allCharucoCorners;
-    vector<Mat> allCharucoIds;
+    aruco::CharucoDetector createDetector() {
+      aruco::CharucoBoard board(Size(squaresX, squaresY), squareLength, markerLength, dictionary);
+      return aruco::CharucoDetector(board, charucoParams, detectorParams);
+    }
 
-    vector<vector<Point2f>> allImagePoints;
-    vector<vector<Point3f>> allObjectPoints;
+    int i; // Declare i here if it's needed elsewhere in the class
 
-    vector<Mat> allImages;
-    Size imageSize;
-
-  private:
     int topic_callback(const sensor_msgs::msg::Image & msg)
     {
         try
@@ -73,11 +67,6 @@ class ImageConverter : public rclcpp::Node
                 // Now you have the image in cv::Mat format
                 cv::Mat image = cv_ptr->image;
 
-
-
-
-
-                
                 Mat imageCopy;
 
                 vector<int> markerIds;
@@ -171,6 +160,15 @@ class ImageConverter : public rclcpp::Node
             }
     }
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_;
+
+    vector<Mat> allCharucoCorners;
+    vector<Mat> allCharucoIds;
+
+    vector<vector<Point2f>> allImagePoints;
+    vector<vector<Point3f>> allObjectPoints;
+
+    vector<Mat> allImages;
+    Size imageSize;
 };
 
 int main(int argc, char * argv[])

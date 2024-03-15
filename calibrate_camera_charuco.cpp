@@ -23,7 +23,9 @@ class ImageConverter : public rclcpp::Node
 {
   public:
     ImageConverter()
-    : Node("minimal_subscriber")
+    : Node("minimal_subscriber"),
+        board(Size(squaresX, squaresY), squareLength, markerLength, dictionary),
+        detector(board, charucoParams, detectorParams)
     {
       subscription_ = this->create_subscription<sensor_msgs::msg::Image>(
       "/camera/cam0/image_raw", 10, std::bind(&ImageConverter::topic_callback, this, _1));
@@ -44,10 +46,10 @@ class ImageConverter : public rclcpp::Node
     aruco::DetectorParameters detectorParams = aruco::DetectorParameters();
     aruco::Dictionary dictionary = aruco::getPredefinedDictionary(16);
     // Create charuco board object
-    aruco::CharucoBoard board(Size(squaresX, squaresY), squareLength, markerLength, dictionary);
+
     aruco::CharucoParameters charucoParams;
 
-    aruco::CharucoDetector detector(board, charucoParams, detectorParams);
+
 
     // Collect data from each frame
     vector<Mat> allCharucoCorners;
@@ -174,14 +176,4 @@ int main(int argc, char * argv[])
   rclcpp::spin(std::make_shared<ImageConverter>());
   rclcpp::shutdown();
   return 0;
-}
-
-aruco::CharucoBoard ImageConverter::board(Size(squaresX, squaresY), squareLength, markerLength, dictionary)
-{
-    return aruco::CharucoBoard();
-}
-
-aruco::CharucoDetector ImageConverter::detector(board, charucoParams, detectorParams)
-{
-    return aruco::CharucoDetector();
 }

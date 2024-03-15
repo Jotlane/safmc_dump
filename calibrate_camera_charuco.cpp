@@ -117,6 +117,7 @@ class ImageConverter : public rclcpp::Node
 
                     imageSize = image.size();
                     if (i>40){
+                        i = i + 1;
                         if(allCharucoCorners.size() < 4) {
                             cerr << "Not enough corners for calibration" << endl;
                             return 0;

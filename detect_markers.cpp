@@ -23,6 +23,7 @@ class ImageConverter : public rclcpp::Node
     {
       subscription_ = this->create_subscription<sensor_msgs::msg::Image>(
       "/camera/cam0/image_raw", 10, bind(&ImageConverter::topic_callback, this, _1));
+      publisher_ = this->create_publisher<geometry_msgs::msg::Twist>("/coordinates", 10);
     }
 
   private:
@@ -65,9 +66,8 @@ class ImageConverter : public rclcpp::Node
                         if (ids[i] == 1)
                         {
                             solvePnP(objPoints, corners.at(i), camMatrix, distCoeffs, rvecs.at(i), tvecs.at(i));
+                            node->publishMarkersPose(rvecs, tvecs, i);
                         }
-                        
-                        //node->publishMarkersPose(rvecs, tvecs);
                     }
                 }
 
@@ -86,6 +86,20 @@ class ImageConverter : public rclcpp::Node
                                 cout << ids[i] << endl;
                                 cout << "R: " << rvecs[i] << endl;
                                 cout << "T " << tvecs[i] << endl;
+                                geometry_msgs::msg::Twist twist_msg;
+
+                                // Set the linear velocity (assuming tvecs contains translation vectors)
+                                twist_msg.linear.x = tvecs[1][0]; // Adjust as necessary
+                                twist_msg.linear.y = tvecs[1][1]; // Adjust as necessary
+                                twist_msg.linear.z = tvecs[1][2]; // Adjust as necessary
+
+                                // Set the angular velocity (assuming rvecs contains rotation vectors)
+                                twist_msg.angular.x = rvecs[1][0]; // Adjust as necessary
+                                twist_msg.angular.y = rvecs[1][1]; // Adjust as necessary
+                                twist_msg.angular.z = rvecs[1][2]; // Adjust as necessary
+
+                                // Publish the twist message
+                                publisher_->publish(twist_msg);
                             }
 
                         }
@@ -108,12 +122,14 @@ class ImageConverter : public rclcpp::Node
             }
     }
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_;
+    rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr publisher_;
 };
 
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
   rclcpp::spin(make_shared<ImageConverter>());
+  auto node = std::make_shared<MarkerPosePublisher>();
   rclcpp::shutdown();
   return 0;
 }

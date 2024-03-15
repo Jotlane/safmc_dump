@@ -31,7 +31,7 @@ class ImageConverter : public rclcpp::Node
   public: int i =0;
 
   private:
-    int topic_callback(const sensor_msgs::msg::Image & msg) const
+    int topic_callback(const sensor_msgs::msg::Image & msg)
     {
         try
             {

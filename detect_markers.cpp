@@ -62,7 +62,11 @@ class ImageConverter : public rclcpp::Node
                 if(estimatePose && !ids.empty()) {
                     // Calculate pose for each marker
                     for (size_t  i = 0; i < nMarkers; i++) {
-                        solvePnP(objPoints, corners.at(i), camMatrix, distCoeffs, rvecs.at(i), tvecs.at(i));
+                        if (ids[i] == 1)
+                        {
+                            solvePnP(objPoints, corners.at(i), camMatrix, distCoeffs, rvecs.at(i), tvecs.at(i));
+                        }
+                        
                         //node->publishMarkersPose(rvecs, tvecs);
                     }
                 }
@@ -76,9 +80,15 @@ class ImageConverter : public rclcpp::Node
                     if(estimatePose) {
                         for(unsigned int i = 0; i < ids.size(); i++)
                         {
-                            cv::drawFrameAxes(imageCopy, camMatrix, distCoeffs, rvecs[i], tvecs[i], markerLength * 1.5f, 2);
-                            cout << "R: " << rvecs[i] << "T " << tvecs[i] << endl;
+                            if (ids[i] == 1)
+                            {
+                                cv::drawFrameAxes(imageCopy, camMatrix, distCoeffs, rvecs[i], tvecs[i], markerLength * 1.5f, 2);
+                                cout << ids[i] << endl;
+                                cout << "R: " << rvecs[i] << endl;
+                                cout << "T " << tvecs[i] << endl;
                             }
+
+                        }
                     }
                 }
 

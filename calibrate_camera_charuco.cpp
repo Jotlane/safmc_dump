@@ -30,9 +30,10 @@ class ImageConverter : public rclcpp::Node
       calibrationFlags(0),
       aspectRatio(1),
       detectorParams(aruco::DetectorParameters()),
-      dictionary(aruco::getPredefinedDictionary(aruco::DICT_6X6_50)),
+      dictionary(aruco::getPredefinedDictionary(16)),
       charucoParams(),
-      detector(createDetector())
+      detector(createDetector()),
+      board(Size(squaresX, squaresY), squareLength, markerLength, dictionary)
     {
       subscription_ = this->create_subscription<sensor_msgs::msg::Image>(
       "/camera/cam0/image_raw", 10, std::bind(&ImageConverter::topic_callback, this, _1));
@@ -51,9 +52,9 @@ class ImageConverter : public rclcpp::Node
     aruco::Dictionary dictionary;
     aruco::CharucoParameters charucoParams;
     aruco::CharucoDetector detector;
+    aruco::CharucoBoard board; // Moved here
 
     aruco::CharucoDetector createDetector() {
-      aruco::CharucoBoard board(Size(squaresX, squaresY), squareLength, markerLength, dictionary);
       return aruco::CharucoDetector(board, charucoParams, detectorParams);
     }
 

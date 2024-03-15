@@ -28,7 +28,23 @@ class ImageConverter : public rclcpp::Node
       subscription_ = this->create_subscription<sensor_msgs::msg::Image>(
       "/camera/cam0/image_raw", 10, std::bind(&ImageConverter::topic_callback, this, _1));
     }
-  public: int i =0;
+  public:
+    int i =0;
+    // Create charuco board object
+    aruco::CharucoBoard board(Size(squaresX, squaresY), squareLength, markerLength, dictionary);
+    aruco::CharucoParameters charucoParams;
+
+    aruco::CharucoDetector detector(board, charucoParams, detectorParams);
+
+    // Collect data from each frame
+    vector<Mat> allCharucoCorners;
+    vector<Mat> allCharucoIds;
+
+    vector<vector<Point2f>> allImagePoints;
+    vector<vector<Point3f>> allObjectPoints;
+
+    vector<Mat> allImages;
+    Size imageSize;
 
   private:
     int topic_callback(const sensor_msgs::msg::Image & msg)
@@ -54,21 +70,7 @@ class ImageConverter : public rclcpp::Node
                 aruco::DetectorParameters detectorParams = aruco::DetectorParameters();
                 aruco::Dictionary dictionary = aruco::getPredefinedDictionary(16);
 
-                // Create charuco board object
-                aruco::CharucoBoard board(Size(squaresX, squaresY), squareLength, markerLength, dictionary);
-                aruco::CharucoParameters charucoParams;
 
-                aruco::CharucoDetector detector(board, charucoParams, detectorParams);
-
-                // Collect data from each frame
-                vector<Mat> allCharucoCorners;
-                vector<Mat> allCharucoIds;
-
-                vector<vector<Point2f>> allImagePoints;
-                vector<vector<Point3f>> allObjectPoints;
-
-                vector<Mat> allImages;
-                Size imageSize;
                 
                 Mat imageCopy;
 

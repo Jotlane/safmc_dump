@@ -28,6 +28,7 @@ class ImageConverter : public rclcpp::Node
       subscription_ = this->create_subscription<sensor_msgs::msg::Image>(
       "/camera/cam0/image_raw", 10, std::bind(&ImageConverter::topic_callback, this, _1));
     }
+  public: int i =0;
 
   private:
     int topic_callback(const sensor_msgs::msg::Image & msg) const
@@ -68,7 +69,7 @@ class ImageConverter : public rclcpp::Node
 
                 vector<Mat> allImages;
                 Size imageSize;
-                int i =0;
+                
                 Mat imageCopy;
 
                 vector<int> markerIds;

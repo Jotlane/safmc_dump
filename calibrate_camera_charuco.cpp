@@ -30,7 +30,7 @@ class ImageConverter : public rclcpp::Node
     }
 
   private:
-    topic_callback(const sensor_msgs::msg::Image & msg) const
+    int topic_callback(const sensor_msgs::msg::Image & msg) const
     {
         try
             {
@@ -157,7 +157,7 @@ class ImageConverter : public rclcpp::Node
         catch (cv_bridge::Exception& e)
             {
                 RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
-                return;
+                return 0;
             }
     }
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_;

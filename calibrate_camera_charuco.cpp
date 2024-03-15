@@ -95,7 +95,7 @@ class ImageConverter : public rclcpp::Node
                         Point(10, 20), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 0, 0), 2);
 
                 imshow("out", imageCopy);
-                waitKey(1)
+                waitKey(1);
 
                 if(currentCharucoCorners.total() > 3) {
                     // Match image points

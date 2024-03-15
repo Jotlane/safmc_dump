@@ -175,3 +175,13 @@ int main(int argc, char * argv[])
   rclcpp::shutdown();
   return 0;
 }
+
+aruco::CharucoBoard ImageConverter::board(Size(squaresX, squaresY), squareLength, markerLength, dictionary)
+{
+    return aruco::CharucoBoard();
+}
+
+aruco::CharucoDetector ImageConverter::detector(board, charucoParams, detectorParams)
+{
+    return aruco::CharucoDetector();
+}

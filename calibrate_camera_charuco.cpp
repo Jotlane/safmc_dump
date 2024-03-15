@@ -24,32 +24,35 @@ class ImageConverter : public rclcpp::Node
   public:
     ImageConverter()
     : Node("minimal_subscriber"),
-        board(Size(squaresX, squaresY), squareLength, markerLength, dictionary),
-        detector(board, charucoParams, detectorParams)
+      squaresX(7),
+      squaresY(5),
+      squareLength(0.035),
+      markerLength(0.025),
+      outputFile("calibration.yaml"),
+      showChessboardCorners(false),
+      calibrationFlags(0),
+      aspectRatio(1),
+      detectorParams(aruco::DetectorParameters()),
+      dictionary(aruco::getPredefinedDictionary(aruco::DICT_6X6_50)),
+      charucoParams(),
+      detector(createDetector())
     {
       subscription_ = this->create_subscription<sensor_msgs::msg::Image>(
       "/camera/cam0/image_raw", 10, std::bind(&ImageConverter::topic_callback, this, _1));
     }
   public:
-    int i =0;
-    int squaresX = 7;
-    int squaresY = 5;
-    float squareLength = 0.035;
-    float markerLength = 0.025;
-    string outputFile = "calibration.yaml";
-
-    bool showChessboardCorners = false;
-
-    int calibrationFlags = 0;
-    float aspectRatio = 1;
-
-    aruco::DetectorParameters detectorParams = aruco::DetectorParameters();
-    aruco::Dictionary dictionary = aruco::getPredefinedDictionary(16);
-    // Create charuco board object
-    aruco::CharucoBoard board(Size(squaresX, squaresY), squareLength, markerLength, dictionary);
+    int squaresX;
+    int squaresY;
+    float squareLength;
+    float markerLength;
+    std::string outputFile;
+    bool showChessboardCorners;
+    int calibrationFlags;
+    float aspectRatio;
+    aruco::DetectorParameters detectorParams;
+    aruco::Dictionary dictionary;
     aruco::CharucoParameters charucoParams;
-
-    aruco::CharucoDetector detector(board, charucoParams, detectorParams);
+    aruco::CharucoDetector detector;
 
     // Collect data from each frame
     vector<Mat> allCharucoCorners;

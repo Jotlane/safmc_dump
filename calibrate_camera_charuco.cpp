@@ -1,3 +1,6 @@
+// This file is part of OpenCV project.
+// It is subject to the license terms in the LICENSE file found in the top-level directory
+// of this distribution and at http://opencv.org/license.html
 #include <memory>
 #include <iostream>
 #include <vector>
@@ -20,46 +23,23 @@ class ImageConverter : public rclcpp::Node
 {
   public:
     ImageConverter()
-    : Node("minimal_subscriber"),
-      squaresX(7),
-      squaresY(5),
-      squareLength(0.035),
-      markerLength(0.025),
-      outputFile("calibration.yaml"),
-      showChessboardCorners(false),
-      calibrationFlags(0),
-      aspectRatio(1),
-      detectorParams(aruco::DetectorParameters()),
-      dictionary(aruco::getPredefinedDictionary(16)),
-      charucoParams(),
-      detector(createDetector()),
-      board(Size(squaresX, squaresY), squareLength, markerLength, dictionary)
+    : Node("minimal_subscriber")
     {
       subscription_ = this->create_subscription<sensor_msgs::msg::Image>(
       "/camera/cam0/image_raw", 10, std::bind(&ImageConverter::topic_callback, this, _1));
     }
+  public:
+    // Collect data from each frame
+    vector<Mat> allCharucoCorners;
+    vector<Mat> allCharucoIds;
+
+    vector<vector<Point2f>> allImagePoints;
+    vector<vector<Point3f>> allObjectPoints;
+
+    vector<Mat> allImages;
+    Size imageSize;
 
   private:
-    int squaresX;
-    int squaresY;
-    float squareLength;
-    float markerLength;
-    std::string outputFile;
-    bool showChessboardCorners;
-    int calibrationFlags;
-    float aspectRatio;
-    aruco::DetectorParameters detectorParams;
-    aruco::Dictionary dictionary;
-    aruco::CharucoParameters charucoParams;
-    aruco::CharucoDetector detector;
-    aruco::CharucoBoard board; // Moved here
-
-    aruco::CharucoDetector createDetector() {
-      return aruco::CharucoDetector(board, charucoParams, detectorParams);
-    }
-
-    int i; // Declare i here if it's needed elsewhere in the class
-
     int topic_callback(const sensor_msgs::msg::Image & msg)
     {
         try
@@ -68,6 +48,29 @@ class ImageConverter : public rclcpp::Node
                 // Now you have the image in cv::Mat format
                 cv::Mat image = cv_ptr->image;
 
+
+                int i =0;
+                int squaresX = 7;
+                int squaresY = 5;
+                float squareLength = 0.035;
+                float markerLength = 0.025;
+                string outputFile = "calibration.yaml";
+
+                bool showChessboardCorners = false;
+
+                int calibrationFlags = 0;
+                float aspectRatio = 1;
+
+                aruco::DetectorParameters detectorParams = aruco::DetectorParameters();
+                aruco::Dictionary dictionary = aruco::getPredefinedDictionary(16);
+                // Create charuco board object
+                aruco::CharucoBoard board(Size(squaresX, squaresY), squareLength, markerLength, dictionary);
+                aruco::CharucoParameters charucoParams;
+
+                aruco::CharucoDetector detector(board, charucoParams, detectorParams);
+
+
+                
                 Mat imageCopy;
 
                 vector<int> markerIds;
@@ -161,15 +164,6 @@ class ImageConverter : public rclcpp::Node
             }
     }
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_;
-
-    vector<Mat> allCharucoCorners;
-    vector<Mat> allCharucoIds;
-
-    vector<vector<Point2f>> allImagePoints;
-    vector<vector<Point3f>> allObjectPoints;
-
-    vector<Mat> allImages;
-    Size imageSize;
 };
 
 int main(int argc, char * argv[])

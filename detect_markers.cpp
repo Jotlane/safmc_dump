@@ -88,14 +88,14 @@ class ImageConverter : public rclcpp::Node
                                 geometry_msgs::msg::Twist twist_msg;
 
                                 // Set the linear velocity (assuming tvecs contains translation vectors)
-                                twist_msg.linear.x = tvecs[1][0]; // Adjust as necessary
-                                twist_msg.linear.y = tvecs[1][1]; // Adjust as necessary
-                                twist_msg.linear.z = tvecs[1][2]; // Adjust as necessary
+                                twist_msg.linear.x = tvecs[i][0]; // Adjust as necessary
+                                twist_msg.linear.y = tvecs[i][1]; // Adjust as necessary
+                                twist_msg.linear.z = tvecs[i][2]; // Adjust as necessary
 
                                 // Set the angular velocity (assuming rvecs contains rotation vectors)
-                                twist_msg.angular.x = rvecs[1][0]; // Adjust as necessary
-                                twist_msg.angular.y = rvecs[1][1]; // Adjust as necessary
-                                twist_msg.angular.z = rvecs[1][2]; // Adjust as necessary
+                                twist_msg.angular.x = rvecs[i][0]; // Adjust as necessary
+                                twist_msg.angular.y = rvecs[i][1]; // Adjust as necessary
+                                twist_msg.angular.z = rvecs[i][2]; // Adjust as necessary
 
                                 // Publish the twist message
                                 publisher_->publish(twist_msg);

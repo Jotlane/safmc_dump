@@ -30,6 +30,19 @@ class ImageConverter : public rclcpp::Node
     }
   public:
     int i =0;
+    int squaresX = 7;
+    int squaresY = 5;
+    float squareLength = 0.035;
+    float markerLength = 0.025;
+    string outputFile = "calibration.yaml";
+
+    bool showChessboardCorners = false;
+
+    int calibrationFlags = 0;
+    float aspectRatio = 1;
+
+    aruco::DetectorParameters detectorParams = aruco::DetectorParameters();
+    aruco::Dictionary dictionary = aruco::getPredefinedDictionary(16);
     // Create charuco board object
     aruco::CharucoBoard board(Size(squaresX, squaresY), squareLength, markerLength, dictionary);
     aruco::CharucoParameters charucoParams;
@@ -56,19 +69,7 @@ class ImageConverter : public rclcpp::Node
                 cv::Mat image = cv_ptr->image;
 
 
-                int squaresX = 7;
-                int squaresY = 5;
-                float squareLength = 0.035;
-                float markerLength = 0.025;
-                string outputFile = "calibration.yaml";
 
-                bool showChessboardCorners = false;
-
-                int calibrationFlags = 0;
-                float aspectRatio = 1;
-
-                aruco::DetectorParameters detectorParams = aruco::DetectorParameters();
-                aruco::Dictionary dictionary = aruco::getPredefinedDictionary(16);
 
 
                 

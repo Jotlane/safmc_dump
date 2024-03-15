@@ -127,8 +127,7 @@ class ImageConverter : public rclcpp::Node
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(make_shared<ImageConverter>());
-  auto node = std::make_shared<MarkerPosePublisher>();
+  auto node = std::make_shared<ImageConverter>();
   rclcpp::shutdown();
   return 0;
 }

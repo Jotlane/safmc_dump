@@ -12,6 +12,7 @@ using std::placeholders::_1;
 
 #include "geometry_msgs/msg/twist.hpp"
 #include "geometry_msgs/msg/vector3.hpp"
+#include "custom_messages/msg/twist_id.hpp"
 
 using namespace std;
 using namespace cv;
@@ -23,7 +24,7 @@ class ImageConverter : public rclcpp::Node
     {
       subscription_ = this->create_subscription<sensor_msgs::msg::Image>(
       "/camera/cam0/image_raw", 10, bind(&ImageConverter::topic_callback, this, _1));
-      publisher_ = this->create_publisher<geometry_msgs::msg::Twist>("/coordinates", 10);
+      publisher_ = this->create_publisher<custom_messages::msg::TwistID>("/coordinates", 10);
     }
 
   private:
@@ -72,30 +73,32 @@ class ImageConverter : public rclcpp::Node
 
 
                 // draw results
-                image.copyTo(imageCopy);
+                //image.copyTo(imageCopy);
                 if(!ids.empty()) {
-                    aruco::drawDetectedMarkers(imageCopy, corners, ids);
+                    //aruco::drawDetectedMarkers(imageCopy, corners, ids);
 
                     if(estimatePose) {
                         for(unsigned int i = 0; i < ids.size(); i++)
                         {
                             if (ids[i] == 1)
                             {
-                                cv::drawFrameAxes(imageCopy, camMatrix, distCoeffs, rvecs[i], tvecs[i], markerLength * 1.5f, 2);
+                                //cv::drawFrameAxes(imageCopy, camMatrix, distCoeffs, rvecs[i], tvecs[i], markerLength * 1.5f, 2);
                                 cout << ids[i] << endl;
                                 cout << "R: " << rvecs[i] << endl;
                                 cout << "T " << tvecs[i] << endl;
-                                geometry_msgs::msg::Twist twist_msg;
+                                custom_messages::msg::TwistID twist_msg;
+
+				twist_msg.id = ids[i];
 
                                 // Set the linear velocity (assuming tvecs contains translation vectors)
-                                twist_msg.linear.x = tvecs[i][0]; // Adjust as necessary
-                                twist_msg.linear.y = tvecs[i][1]; // Adjust as necessary
-                                twist_msg.linear.z = tvecs[i][2]; // Adjust as necessary
+                                twist_msg.twist.linear.x = tvecs[i][0]; // Adjust as necessary
+                                twist_msg.twist.linear.y = tvecs[i][1]; // Adjust as necessary
+                                twist_msg.twist.linear.z = tvecs[i][2]; // Adjust as necessary
 
                                 // Set the angular velocity (assuming rvecs contains rotation vectors)
-                                twist_msg.angular.x = rvecs[i][0]; // Adjust as necessary
-                                twist_msg.angular.y = rvecs[i][1]; // Adjust as necessary
-                                twist_msg.angular.z = rvecs[i][2]; // Adjust as necessary
+                                twist_msg.twist.angular.x = rvecs[i][0]; // Adjust as necessary
+                                twist_msg.twist.angular.y = rvecs[i][1]; // Adjust as necessary
+                                twist_msg.twist.angular.z = rvecs[i][2]; // Adjust as necessary
 
                                 // Publish the twist message
                                 publisher_->publish(twist_msg);
@@ -105,11 +108,11 @@ class ImageConverter : public rclcpp::Node
                     }
                 }
 
-                if(showRejected && !rejected.empty())
-                    aruco::drawDetectedMarkers(imageCopy, rejected, noArray(), Scalar(100, 0, 255));
+                //if(showRejected && !rejected.empty())
+                    //aruco::drawDetectedMarkers(imageCopy, rejected, noArray(), Scalar(100, 0, 255));
 
-                imshow("out", imageCopy);
-                waitKey(1);
+                //imshow("out", imageCopy);
+                //waitKey(1);
 
 
 
@@ -121,7 +124,7 @@ class ImageConverter : public rclcpp::Node
             }
     }
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_;
-    rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr publisher_;
+    rclcpp::Publisher<custom_messages::msg::TwistID>::SharedPtr publisher_;
 };
 
 int main(int argc, char * argv[])

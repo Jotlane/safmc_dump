@@ -43,12 +43,15 @@
 #include <px4_msgs/msg/trajectory_setpoint.hpp>
 #include <px4_msgs/msg/vehicle_command.hpp>
 #include <px4_msgs/msg/vehicle_control_mode.hpp>
-#include <px4_msgs/msg/vehicle_control_mode.hpp>
+#include <px4_msgs/msg/vehicle_odometry.hpp>
 #include <geometry_msgs/msg/twist.hpp>
+#include "safmc_msgs/msg/twist_id.hpp"
 #include <rclcpp/rclcpp.hpp>
 #include <stdint.h>
 #include <math.h>
-
+//#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include "tf2/LinearMath/Quaternion.h"
+#include "tf2/LinearMath/Matrix3x3.h"
 #include <chrono>
 #include <iostream>
 
@@ -74,8 +77,8 @@ public:
 		// Subscribers
 		vehicle_control_mode_subscriber_ = this->create_subscription<VehicleControlMode>("/fmu/out/vehicle_control_mode", qos, std::bind(&OffboardControl::vehicle_control_mode_callback, this, _1));
 		keyboard_subscriber_ = this->create_subscription<geometry_msgs::msg::Twist>("/cmd_vel", 10, std::bind(&OffboardControl::keyboard_callback, this, _1));
-		odometry_subscriber_ = this->create_subscription<geometry_msgs::msg::Twist>("/fmu/out/vehicle_odometry", 10, std::bind(&OffboardControl::keyboard_callback, this, _1));
-		camera_subscriber_ = this->create_subscription<geometry_msgs::msg::Twist>("/cam0_coordinates", 10, std::bind(&OffboardControl::keyboard_callback, this, _1));
+		vehicle_odometry_subscriber_ = this->create_subscription<VehicleOdometry>("/fmu/out/vehicle_odometry", qos, std::bind(&OffboardControl::vehicle_odometry_callback, this, _1));
+		camera_subscriber_ = this->create_subscription<safmc_msgs::msg::TwistID>("/cam0_coordinates", qos, std::bind(&OffboardControl::camera_callback, this, _1));
 		
 		offboard_setpoint_counter_ = 0;
 		is_offboard_active = false;
@@ -148,6 +151,7 @@ private:
 	void vehicle_control_mode_callback(const VehicleControlMode & msg) {
 		RCLCPP_INFO(this->get_logger(), "%d", msg.flag_control_offboard_enabled);
 		is_offboard_active = msg.flag_control_offboard_enabled;
+
 	}
 
 	void keyboard_callback(const geometry_msgs::msg::Twist & msg) {
@@ -174,6 +178,53 @@ private:
 			drone.yaw = new_yaw;
 		}
 	}
+	void vehicle_odometry_callback(const VehicleOdometry::SharedPtr msg) {
+	//void vehicle_odometry_callback(const VehicleOdometry msg) {
+		//store latest odometry data
+		latest_odometry_data_ = msg;
+		
+		//std::cout << "x: " << latest_odometry_data_->position[0] << std::endl; 
+		//std::cout << "y: " << latest_odometry_data_->position[1] << std::endl; 
+		//std::cout << "z: " << latest_odometry_data_->position[2] << std::endl; 
+		//std::cout << "qx: " << latest_odometry_data_->q[0] << std::endl; 
+		//std::cout << "qy: " << latest_odometry_data_->q[0] << std::endl; 
+		//std::cout << "qz: " << latest_odometry_data_->q[0] << std::endl; 
+		//std::cout << "qw: " << latest_odometry_data_->q[0] << std::endl; 
+	}
+	void camera_callback(const safmc_msgs::msg::TwistID msg) {
+		//Get vehicle yaw
+		latest_odometry_data_ ->q;
+		tf2::Quaternion q(
+			latest_odometry_data_->q[0],
+			latest_odometry_data_->q[1],
+			latest_odometry_data_->q[2],
+			latest_odometry_data_->q[3]);
+		tf2::Matrix3x3 m(q);
+		double roll, pitch, yaw;
+		m.getRPY(roll, pitch, yaw);
+
+		//Set height
+		drone.up = -latest_odometry_data_->position[2] + msg.twist.linear.y;
+		//Set other translation
+		float modified_x = msg.twist.linear.x * cos(yaw) - latest_odometry_data_->position[1] * sin(yaw);
+		float modified_y = msg.twist.linear.z * sin(yaw) + latest_odometry_data_->position[1] * cos(yaw);
+		float magnitude = sqrt(pow(modified_x, 2.0) + pow(modified_y, 2.0));
+		float modified_magnitude = (magnitude - 1.0)/magnitude;//CHANGE THIS
+		modified_x *= modified_magnitude;
+		modified_y *= modified_magnitude;
+		drone.right = latest_odometry_data_->position[0] + modified_x;
+		drone.forward = latest_odometry_data_->position[1] + modified_y;
+		if (msg.twist.angular.y > 0){
+			drone.yaw = yaw - 0.01;
+		}
+		else{
+			drone.yaw = yaw + 0.01;
+		}
+		std::cout << "forward: " << drone.forward << std::endl;
+		std::cout << "right: " << drone.right << std::endl;
+		std::cout << "up: " << drone.up << std::endl;
+		std::cout << "yaw: " << drone.yaw << std::endl;
+	}
 
 	rclcpp::TimerBase::SharedPtr timer_;
 
@@ -182,12 +233,16 @@ private:
 	rclcpp::Publisher<VehicleCommand>::SharedPtr vehicle_command_publisher_;
 	rclcpp::Subscription<VehicleControlMode>::SharedPtr vehicle_control_mode_subscriber_;
 	rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr keyboard_subscriber_;
+	rclcpp::Subscription<safmc_msgs::msg::TwistID>::SharedPtr camera_subscriber_;
+	rclcpp::Subscription<VehicleOdometry>::SharedPtr vehicle_odometry_subscriber_;
 
 	std::atomic<uint64_t> timestamp_;   //!< common synced timestamped
 
 	uint64_t offboard_setpoint_counter_;   //!< counter for the number of setpoints sent
 	bool is_offboard_active;
 	bool is_offboard_already_active;
+
+	std::shared_ptr<VehicleOdometry> latest_odometry_data_;
 
 	void publish_offboard_control_mode();
 	void publish_trajectory_setpoint(float forward, float right, float up, float yaw);

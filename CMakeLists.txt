@@ -1,22 +1,36 @@
 cmake_minimum_required(VERSION 3.8)
-project(image_converter)
+project(safmc_2024)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-set(OpenCV_DIR /use/local/lib/cmake/opencv)
-
 # find dependencies
 find_package(ament_cmake REQUIRED)
+# uncomment the following section in order to fill in
+# further dependencies manually.
+# find_package(<dependency> REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(sensor_msgs REQUIRED)
-find_package(std_msgs REQUIRED)
-find_package(cv_bridge REQUIRED)
-find_package(image_transport REQUIRED)
-find_package(OpenCV REQUIRED)
-find_package(geometry_msgs REQUIRED)
-find_package(custom_messages REQUIRED)
+find_package(px4_msgs REQUIRED)
+find_package(px4_ros_com REQUIRED)
+find_package(safmc_msgs)
+find_package(tf2)
+find_package(tf2_ros)
+find_package(geometry_msgs)
+
+add_executable(offboard_controller src/offboard_controller.cpp)
+ament_target_dependencies(offboard_controller rclcpp px4_msgs px4_ros_com safmc_msgs tf2 tf2_ros geometry_msgs)
+target_include_directories(offboard_controller PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+target_compile_features(offboard_controller PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+
+install(TARGETS offboard_controller
+  DESTINATION lib/${PROJECT_NAME})
+
+add_executable(activate_offboard src/activate_offboard.cpp)
+ament_target_dependencies(activate_offboard rclcpp px4_msgs)
+install(TARGETS activate_offboard DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -30,19 +44,9 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-add_executable(image_converter src/image_converter.cpp)
-add_executable(calibration src/calibrate_camera_charuco.cpp)
-
-ament_target_dependencies(image_converter rclcpp std_msgs sensor_msgs cv_bridge image_transport OpenCV custom_messages)
-ament_target_dependencies(calibration rclcpp std_msgs sensor_msgs cv_bridge image_transport OpenCV custom_messages)
-
-install(TARGETS
-	image_converter
-	DESTINATION lib/${PROJECT_NAME}
-)
-install(TARGETS
-	calibration
-	DESTINATION lib/${PROJECT_NAME}
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}/
 )
 
 ament_package()

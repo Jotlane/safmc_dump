@@ -20,12 +20,13 @@ find_package(std_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(image_transport REQUIRED)
 find_package(OpenCV REQUIRED)
-find_package(tf2)
-find_package(tf2_ros)
-find_package(geometry_msgs)
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(safmc_msgs REQUIRED)
 # offboard_control.cpp
 add_executable(offboard_controller src/offboard_controller.cpp)
-ament_target_dependencies(offboard_controller rclcpp px4_msgs geometry_msgs tf2 tf2_ros geometry_msgs)
+ament_target_dependencies(offboard_controller rclcpp px4_msgs geometry_msgs tf2 tf2_ros geometry_msgs safmc_msgs)
 install(TARGETS offboard_controller DESTINATION lib/${PROJECT_NAME})
 
 # activate_offboard.cpp
@@ -37,8 +38,8 @@ install(TARGETS activate_offboard DESTINATION lib/${PROJECT_NAME})
 add_executable(image_converter src/aruco/image_converter.cpp)
 add_executable(calibration src/aruco/calibrate_camera_charuco.cpp)
 
-ament_target_dependencies(image_converter rclcpp std_msgs sensor_msgs cv_bridge image_transport OpenCV)
-ament_target_dependencies(calibration rclcpp std_msgs sensor_msgs cv_bridge image_transport OpenCV)
+ament_target_dependencies(image_converter rclcpp std_msgs sensor_msgs cv_bridge image_transport OpenCV safmc_msgs)
+ament_target_dependencies(calibration rclcpp std_msgs sensor_msgs cv_bridge image_transport OpenCV safmc_msgs)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
